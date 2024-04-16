@@ -12,7 +12,7 @@ class SSEMethod(AsyncTonapiClient):
             accounts: List[str],
             handler: Callable[[TransactionEventData, ...], Awaitable[Any]],
             args: Tuple[Any, ...] = (),
-    ) -> None:
+    ) -> Any:
         """
         Subscribes to transactions SSE events for the specified accounts.
 
@@ -24,14 +24,16 @@ class SSEMethod(AsyncTonapiClient):
         params = {'accounts': accounts}
         async for data in self._subscribe(method=method, params=params):
             event = TransactionEventData(**json.loads(data))
-            await handler(event, *args)
+            result = await handler(event, *args)
+            if result is not None:
+                return result
 
     async def subscribe_to_traces(
             self,
             accounts: List[str],
             handler: Callable[[TraceEventData, ...], Awaitable[Any]],
             args: Tuple[Any, ...] = (),
-    ) -> None:
+    ) -> Any:
         """
         Subscribes to traces SSE events for the specified accounts.
 
@@ -42,14 +44,16 @@ class SSEMethod(AsyncTonapiClient):
         params = {'accounts': accounts}
         async for data in self._subscribe(method=method, params=params):
             event = TraceEventData(**json.loads(data))
-            await handler(event, *args)
+            result = await handler(event, *args)
+            if result is not None:
+                return result
 
     async def subscribe_to_mempool(
             self,
             accounts: List[str],
             handler: Callable[[MempoolEventData, ...], Awaitable[Any]],
             args: Tuple[Any, ...] = (),
-    ) -> None:
+    ) -> Any:
         """
         Subscribes to mempool SSE events for the specified accounts.
 
@@ -60,4 +64,6 @@ class SSEMethod(AsyncTonapiClient):
         params = {'accounts': accounts}
         async for data in self._subscribe(method=method, params=params):
             event = MempoolEventData(**json.loads(data))
-            await handler(event, *args)
+            result = await handler(event, *args)
+            if result is not None:
+                return result
